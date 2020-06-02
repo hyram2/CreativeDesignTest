@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Net.Mime;
+using UnityEngine;
 using Utility;
 
 namespace Manager
@@ -6,6 +7,6 @@ namespace Manager
     public class Settings : MonoSingleton<Settings>
     {
         public const string UrlDownloadData = "https://s3-sa-east-1.amazonaws.com/static-files-prod/unity3d/models.json";
-        public const string GameSaveLocation = "";
+        public const string LocalSaveDataPath = @"/Save_Data";
     }
 }

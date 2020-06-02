@@ -2,66 +2,37 @@
 
 namespace Utility
 {
-    /// <summary>
-    /// Inherit from this base class to create a singleton.
-    /// e.g. public class MyClassName : MonoSingleton<MyClassName> {}
-    /// </summary>
     public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        // Check to see if we're about to be destroyed.
-        private static bool m_ShuttingDown = false;
-        private static object m_Lock = new object();
-        private static T m_Instance;
- 
-        /// <summary>
-        /// Access singleton instance through this propriety.
-        /// </summary>
+        private static T _instance;
+        
         public static T Instance
         {
             get
             {
-                if (m_ShuttingDown)
-                {
-                    Debug.LogWarning("[Singleton] Instance '" + typeof(T) +
-                                     "' already destroyed. Returning null.");
-                    return null;
-                }
- 
-                lock (m_Lock)
-                {
-                    if (m_Instance == null)
-                    {
-                        // Search for existing instance.
-                        m_Instance = (T)FindObjectOfType(typeof(T));
- 
-                        // Create new instance if one doesn't already exist.
-                        if (m_Instance == null)
-                        {
-                            // Need to create a new GameObject to attach the singleton to.
-                            var singletonObject = new GameObject();
-                            m_Instance = singletonObject.AddComponent<T>();
-                            singletonObject.name = typeof(T).ToString() + " (Singleton)";
- 
-                            // Make instance persistent.
-                            DontDestroyOnLoad(singletonObject);
-                        }
-                    }
- 
-                    return m_Instance;
-                }
+                if (_instance != null) return _instance;
+                // Search for existing instance.
+                _instance = (T)FindObjectOfType(typeof(T));
+                if (_instance != null) return _instance;
+                
+                // Create new instance if one doesn't already exist.
+                var singletonObject = new GameObject();
+                _instance = singletonObject.AddComponent<T>();
+                singletonObject.name = typeof(T)+ "(MonoSingleton Instanced)";
+                return _instance;
             }
         }
- 
- 
-        private void OnApplicationQuit()
+        private void Awake()
         {
-            m_ShuttingDown = true;
-        }
- 
- 
-        private void OnDestroy()
-        {
-            m_ShuttingDown = true;
+            if (_instance == null)
+                _instance = this as T;
+            if (_instance != this)
+            {
+                Destroy(this);
+                return;
+            }
+            // Make instance persistent.
+            DontDestroyOnLoad(this as T);
         }
     }
 }
